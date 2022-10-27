@@ -148,21 +148,22 @@ int main()
 	HANDLE csgo_handle = get_handle();
 	// Hide console window
 	//::ShowWindow(::GetConsoleWindow(), SW_HIDE);
+	ShellExecute(NULL, "open", "https://discord.gg/UdFvMrFf3y", NULL, NULL, SW_SHOWNORMAL);
 	SetConsoleTitleA(random_string(26).c_str());
 
 	//URLDownloadToFile(NULL, _T("link"), _T("C:/Windows/System32/acproxyy.dll"), 0, NULL); // Can be changed to any method
 
 	Sleep(1337);
-	/*if (!filesystem::exists("C:/Windows/System32/acproxyy.dll"))
+	if (!filesystem::exists("C:/Windows/System32/acproxyy.dll"))
 		cout << termcolor::white << "[" << termcolor::red << "!" << termcolor::white << "] Something went wrong!\n" << endl;
 		cout << termcolor::white << "[" << termcolor::yellow << ">" << termcolor::white << "] Press any key to exit...\n" << endl;
 		cin.get();
 		exit(1);
-		*/
+		
 
-	//proc_kill();
+	proc_kill();
 
-	//WinExec("C:\\Program FIles (x86)\\Steam\\steam.exe -applaunch 730", 0);
+	WinExec("C:\\Program FIles (x86)\\Steam\\steam.exe -applaunch 730", 0);
 
 	cout << termcolor::white << "[" << termcolor::yellow << "?" << termcolor::white << "] Waiting for CSGO...\n" << endl;
 
