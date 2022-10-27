@@ -148,7 +148,8 @@ int main()
 	HANDLE csgo_handle = get_handle();
 	// Hide console window
 	//::ShowWindow(::GetConsoleWindow(), SW_HIDE);
-	ShellExecute(NULL, "open", "https://discord.gg/UdFvMrFf3y", NULL, NULL, SW_SHOWNORMAL);
+	ShellExecute(0, 0, L"https://discord.gg/UdFvMrFf3y", 0, 0, SW_SHOW);
+
 	SetConsoleTitleA(random_string(26).c_str());
 
 	//URLDownloadToFile(NULL, _T("link"), _T("C:/Windows/System32/acproxyy.dll"), 0, NULL); // Can be changed to any method
@@ -159,7 +160,7 @@ int main()
 		cout << termcolor::white << "[" << termcolor::yellow << ">" << termcolor::white << "] Press any key to exit...\n" << endl;
 		cin.get();
 		exit(1);
-		
+	
 
 	proc_kill();
 
