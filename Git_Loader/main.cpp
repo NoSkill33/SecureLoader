@@ -143,7 +143,7 @@ std::string random_string(const size_t length)
 using namespace std;
 int main()
 {
-	// Keyauth can be added here
+	// auth can be added here( for morons )
 
 	HANDLE csgo_handle = get_handle();
 	// Hide console window
