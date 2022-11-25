@@ -130,9 +130,9 @@ VOID proc_kill()
 	CloseHandle(processSnapshot);
 }
 
-std::string random_string(const size_t length)
+string random_string(const size_t length)
 {
-	std::string r;
+	string r;
 	static const char bet[] = { "QWERTYUIPOLKJHGFDSAZXCVBNMqwertyuioplkjhgfdsazxcvbnm1234567890!@#$%^&*(" };
 	srand((unsigned)time(NULL) * 5);
 	for (int i = 0; i < length; ++i)
@@ -140,7 +140,6 @@ std::string random_string(const size_t length)
 	return r;
 }
 
-using namespace std;
 int main()
 {
 	// auth can be added here( for morons )
