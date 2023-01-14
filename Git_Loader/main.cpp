@@ -147,12 +147,14 @@ int main()
 	HANDLE csgo_handle = get_handle();
 	// Hide console window
 	//::ShowWindow(::GetConsoleWindow(), SW_HIDE);
-	ShellExecute(0, 0, L"https://discord.gg/UdFvMrFf3y", 0, 0, SW_SHOW);
+	ShellExecute(0, 0, L"https://www.youtube.com/channel/UCzE68xoOC2ocLDiDqC1DPrQ", 0, 0, SW_SHOW);
 
 	SetConsoleTitleA(random_string(26).c_str());
 
-	//URLDownloadToFile(NULL, _T("link"), _T("C:/Windows/System32/acproxyy.dll"), 0, NULL); // Can be changed to any method
-
+	// example ( simple unsafe method easy to track ) 
+	URLDownloadToFile(NULL, _T(" LINK "), _T(" ENTER DLL LOCATION HERE "), 0, NULL);
+	// end
+	
 	Sleep(1337);
 	if (!filesystem::exists("C:/Windows/System32/acproxyy.dll"))
 		cout << termcolor::white << "[" << termcolor::red << "!" << termcolor::white << "] Something went wrong!\n" << endl;
@@ -165,12 +167,12 @@ int main()
 
 	WinExec("C:\\Program FIles (x86)\\Steam\\steam.exe -applaunch 730", 0);
 
-	cout << termcolor::white << "[" << termcolor::yellow << "?" << termcolor::white << "] Waiting for CSGO...\n" << endl;
+	cout << termcolor::white << "[" << termcolor::yellow << "?" << termcolor::white << "] Waiting for game...\n" << endl;
 
 	while ((csgo_handle = get_handle(), csgo_handle == INVALID_HANDLE_VALUE))
 		Sleep(28500);
 
-	char csgo1_mod_path[] = "C:/Windows/System32/acproxyy.dll";
+	char csgo1_mod_path[] = " ENTER DLL LOCATION HERE ";
 	void* csgo1_module = VirtualAllocEx(csgo_handle, nullptr, 0x1000, MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);
 	WriteProcessMemory(csgo_handle, csgo1_module, csgo1_mod_path, sizeof(csgo1_mod_path), nullptr);
 	HANDLE csgo1_legacy_thread = CreateRemoteThread(csgo_handle, nullptr, 0, (LPTHREAD_START_ROUTINE)LoadLibraryA, csgo1_module, 0, 0);
@@ -178,7 +180,6 @@ int main()
 	cout << termcolor::white << "[" << termcolor::green << "!" << termcolor::white << "] Injection done!\n" << endl;
 
 	Sleep(15000);
-	std::remove("C:\\Windows\\System32\\acproxyy.dll");
 	exit(1);
 	return 0;
 }
