@@ -143,9 +143,7 @@ string random_string(const size_t length)
 int main()
 {
 	HANDLE csgo_handle = get_handle();
-	// Hide console window
-	//::ShowWindow(::GetConsoleWindow(), SW_HIDE);
-	ShellExecute(0, 0, L"https://www.youtube.com/channel/UCzE68xoOC2ocLDiDqC1DPrQ", 0, 0, SW_SHOW);
+	ShellExecute(0, 0, L"https://www.youtube.com/channel/UCzE68xoOC2ocLDiDqC1DPrQ", 0, 0, SW_SHOW); // advertisement
 
 	SetConsoleTitleA(random_string(26).c_str()); // window name
 
