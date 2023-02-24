@@ -142,30 +142,28 @@ string random_string(const size_t length)
 
 int main()
 {
-	// auth can be added here( for morons )
-
 	HANDLE csgo_handle = get_handle();
 	// Hide console window
 	//::ShowWindow(::GetConsoleWindow(), SW_HIDE);
 	ShellExecute(0, 0, L"https://www.youtube.com/channel/UCzE68xoOC2ocLDiDqC1DPrQ", 0, 0, SW_SHOW);
 
-	SetConsoleTitleA(random_string(26).c_str());
+	SetConsoleTitleA(random_string(26).c_str()); // window name
 
-	// example ( simple unsafe method easy to track ) 
+	// example ( unsafe method )
 	URLDownloadToFile(NULL, _T(" LINK "), _T(" ENTER DLL LOCATION HERE "), 0, NULL);
 	// end
 	
 	Sleep(1337);
-	if (!filesystem::exists("C:/Windows/System32/acproxyy.dll"))
+	if (!filesystem::exists(" ENTER DLL LOCATION HERE ")) // veryfication that dll exists
 		cout << termcolor::white << "[" << termcolor::red << "!" << termcolor::white << "] Something went wrong!\n" << endl;
 		cout << termcolor::white << "[" << termcolor::yellow << ">" << termcolor::white << "] Press any key to exit...\n" << endl;
 		cin.get();
 		exit(1);
 	
 
-	proc_kill();
+	proc_kill(); // killing steam and game process
 
-	WinExec("C:\\Program FIles (x86)\\Steam\\steam.exe -applaunch 730", 0);
+	WinExec("C:\\Program FIles (x86)\\Steam\\steam.exe -applaunch 730", 0); // auto game start
 
 	cout << termcolor::white << "[" << termcolor::yellow << "?" << termcolor::white << "] Waiting for game...\n" << endl;
 
