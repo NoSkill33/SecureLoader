@@ -1,19 +1,15 @@
 #include <iostream>
 #include <Windows.h>
 #include <tchar.h>
-
-#include <Windows.h>
 #include <ShlObj.h>
 #include <shlwapi.h>
 #include <TlHelp32.h>
 #include <filesystem>
-
 #include <fstream>
 #include <stdio.h>
 #include <tchar.h>
-
-#include <windows.h>
 #include <Urlmon.h>
+
 #include "termcolor.h"
 #pragma comment(lib, "urlmon.lib")
 using namespace std;
