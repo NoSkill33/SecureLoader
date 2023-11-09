@@ -1,177 +1,154 @@
-#include <iostream>
-#include <Windows.h>
-#include <tchar.h>
-#include <ShlObj.h>
-#include <shlwapi.h>
-#include <TlHelp32.h>
 #include <filesystem>
 #include <fstream>
-#include <stdio.h>
+#include <iostream>
+#include <ShlObj.h>
+#include <shlwapi.h>
 #include <tchar.h>
+#include <TlHelp32.h>
 #include <Urlmon.h>
+#include <Windows.h>
 
 #include "termcolor.h"
 #pragma comment(lib, "urlmon.lib")
 using namespace std;
 
-DWORD proc_find(const std::wstring& processName)
+DWORD procFind(const std::wstring& processName)
 {
-	PROCESSENTRY32 processInfo;
-	processInfo.dwSize = sizeof(processInfo);
+    PROCESSENTRY32 process_info;
+    process_info.dwSize = sizeof(process_info);
 
-	HANDLE processesSnapshot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, NULL);
-	if (processesSnapshot == INVALID_HANDLE_VALUE)
-		return 0;
+    const HANDLE processes_snapshot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, NULL);
+    if (processes_snapshot == INVALID_HANDLE_VALUE) return 0;
 
-	Process32First(processesSnapshot, &processInfo);
-	if (!processName.compare(processInfo.szExeFile))
-	{
-		CloseHandle(processesSnapshot);
-		return processInfo.th32ProcessID;
-	}
+    Process32First(processes_snapshot, &process_info);
+    if (processName == process_info.szExeFile)
+    {
+        CloseHandle(processes_snapshot);
+        return process_info.th32ProcessID;
+    }
 
-	while (Process32Next(processesSnapshot, &processInfo))
-	{
-		if (!processName.compare(processInfo.szExeFile))
-		{
-			CloseHandle(processesSnapshot);
-			return processInfo.th32ProcessID;
-		}
-	}
+    while (Process32Next(processes_snapshot, &process_info))
+    {
+        if (processName == process_info.szExeFile)
+        {
+            CloseHandle(processes_snapshot);
+            return process_info.th32ProcessID;
+        }
+    }
 
-	CloseHandle(processesSnapshot);
-	return 0;
+    CloseHandle(processes_snapshot);
+    return 0;
 }
 
-HANDLE get_handle(int perms = PROCESS_ALL_ACCESS) {
-	DWORD pid = proc_find(L"csgo.exe");
+HANDLE getHandle(const int perms = PROCESS_ALL_ACCESS)
+{
+    const DWORD pid = procFind(L"csgo.exe");
 
-	if (!pid)
-		return INVALID_HANDLE_VALUE;
+    if (!pid) return INVALID_HANDLE_VALUE;
 
-	return OpenProcess(perms, FALSE, pid);
+    return OpenProcess(perms, FALSE, pid);
 }
 
-
-bool write_memory(HANDLE hFile, LONG offset, DWORD size, LPCVOID dataBuffer)
+bool writeMemory(const HANDLE hFile, const LONG offset, const DWORD size, const LPCVOID dataBuffer)
 {
-	DWORD lpNumberOfBytesWritten = 0;
-	DWORD retValue = 0;
-	DWORD dwError = 0;
+    DWORD lp_number_of_bytes_written = 0;
 
-	if ((hFile != INVALID_HANDLE_VALUE) && dataBuffer)
-	{
-		retValue = SetFilePointer(hFile, offset, NULL, FILE_BEGIN);
-		dwError = GetLastError();
+    if (hFile != INVALID_HANDLE_VALUE && dataBuffer)
+    {
+        const DWORD ret_value = SetFilePointer(hFile, offset, nullptr, FILE_BEGIN);
 
-		if ((retValue == INVALID_SET_FILE_POINTER) && (dwError != NO_ERROR))
-		{
-			return false;
-		}
-		else
-		{
-			if (WriteFile(hFile, dataBuffer, size, &lpNumberOfBytesWritten, 0))
-			{
-				return true;
-			}
-			else
-			{
-				return false;
-			}
-		}
-	}
-	else
-	{
-		return false;
-	}
+        if (const DWORD dw_error = GetLastError(); ret_value == INVALID_SET_FILE_POINTER && dw_error != NO_ERROR) return false;
+        if (WriteFile(hFile, dataBuffer, size, &lp_number_of_bytes_written, nullptr)) return true;
+        return false;
+    }
+    return false;
 }
 
-bool write_memory_new(const CHAR* file, DWORD size, LPCVOID dataBuffer)
+bool writeMemoryNew(const CHAR* file, const DWORD size, const LPCVOID dataBuffer)
 {
-	HANDLE hFile = CreateFileA(file, GENERIC_WRITE, 0, 0, CREATE_ALWAYS, 0, 0);
-
-	if (hFile != INVALID_HANDLE_VALUE)
-	{
-		bool resultValue = write_memory(hFile, 0, size, dataBuffer);
-		CloseHandle(hFile);
-		return resultValue;
-	}
-	else
-	{
-		return false;
-	}
+    if (const HANDLE h_file = CreateFileA(file, GENERIC_WRITE, 0, nullptr, CREATE_ALWAYS, 0, nullptr); h_file != INVALID_HANDLE_VALUE)
+    {
+        const bool result_value = writeMemory(h_file, 0, size, dataBuffer);
+        CloseHandle(h_file);
+        return result_value;
+    }
+    return false;
 }
 
-VOID proc_kill()
+VOID procKill()
 {
-	HANDLE processSnapshot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
+    const HANDLE process_snapshot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
 
-	PROCESSENTRY32W processEntry;
-	processEntry.dwSize = sizeof(processEntry);
+    PROCESSENTRY32W process_entry;
+    process_entry.dwSize = sizeof(process_entry);
 
-	if (Process32FirstW(processSnapshot, &processEntry)) {
-		PCWSTR steamProcesses[] = { L"Steam.exe", L"SteamService.exe", L"steamwebhelper.exe", L"csgo.exe" };
-		do {
-			for (INT i = 0; i < _countof(steamProcesses); i++) {
-				if (!lstrcmpiW(processEntry.szExeFile, steamProcesses[i])) {
-					HANDLE processHandle = OpenProcess(PROCESS_TERMINATE, FALSE, processEntry.th32ProcessID);
-					if (processHandle) {
-						TerminateProcess(processHandle, 0);
-						CloseHandle(processHandle);
-					}
-				}
-			}
-		} while (Process32NextW(processSnapshot, &processEntry));
-	}
-	CloseHandle(processSnapshot);
+    if (Process32FirstW(process_snapshot, &process_entry))
+    {
+        PCWSTR processes[] = {L"Steam.exe", L"SteamService.exe", L"steamwebhelper.exe", L"csgo.exe"};
+        do
+        {
+            for (const auto& process : processes)
+            {
+                if (!lstrcmpiW(process_entry.szExeFile, process))
+                {
+                    if (const HANDLE process_handle = OpenProcess(PROCESS_TERMINATE, FALSE, process_entry.th32ProcessID))
+                    {
+                        TerminateProcess(process_handle, 0);
+                        CloseHandle(process_handle);
+                    }
+                }
+            }
+        }
+        while (Process32NextW(process_snapshot, &process_entry));
+    }
+    CloseHandle(process_snapshot);
 }
 
-string random_string(const size_t length)
+string randomString(const size_t length)
 {
-	string r;
-	static const char bet[] = { "QWERTYUIPOLKJHGFDSAZXCVBNMqwertyuioplkjhgfdsazxcvbnm1234567890!@#$%^&*(" };
-	srand((unsigned)time(NULL) * 5);
-	for (int i = 0; i < length; ++i)
-		r += bet[rand() % (sizeof(bet) - 1)];
-	return r;
+    string r;
+    static constexpr char BET[] = {"QWERTYUIPOLKJHGFDSAZXCVBNMqwertyuioplkjhgfdsazxcvbnm1234567890!@#$%^&*("};
+    srand(static_cast<unsigned>(time(nullptr)) * 5);
+    for (size_t i = 0; i < length; ++i) r += BET[rand() % (sizeof(BET) - 1)]; // concurrency-mt-unsafe
+    return r;
 }
 
 int main()
 {
-	HANDLE csgo_handle = get_handle();
-	ShellExecute(0, 0, L"https://www.youtube.com/channel/UCzE68xoOC2ocLDiDqC1DPrQ", 0, 0, SW_SHOW); // advertisement
+    HANDLE csgo_handle;
+    ShellExecute(nullptr, nullptr, L"https://www.youtube.com/channel/UCzE68xoOC2ocLDiDqC1DPrQ", nullptr, nullptr, SW_SHOW); // advertisement
 
-	SetConsoleTitleA(random_string(26).c_str()); // window name
+    SetConsoleTitleA(randomString(26).c_str()); // window name
 
-	// example ( unsafe method )
-	URLDownloadToFile(NULL, _T(" LINK "), _T(" ENTER DLL LOCATION HERE "), 0, NULL);
-	// end
-	
-	Sleep(1337);
-	if (!filesystem::exists(" ENTER DLL LOCATION HERE ")) // veryfication that dll exists
-		cout << termcolor::white << "[" << termcolor::red << "!" << termcolor::white << "] Something went wrong!\n" << endl;
-		cout << termcolor::white << "[" << termcolor::yellow << ">" << termcolor::white << "] Press any key to exit...\n" << endl;
-		cin.get();
-		exit(1);
-	
+    // example ( unsafe method )
+    URLDownloadToFileW(nullptr, _T(" LINK "), _T(" ENTER DLL LOCATION HERE "), 0, nullptr); // function-result-should-be-used
+    // end
 
-	proc_kill(); // killing steam and game process
+    Sleep(1337);
+    if (!filesystem::exists(" ENTER DLL LOCATION HERE "))
+    {
+        // verification that dll exists
+        cout << termcolor::white << "[" << termcolor::red << "!" << termcolor::white << "] Something went wrong!\n" << endl;
+        cout << termcolor::white << "[" << termcolor::yellow << ">" << termcolor::white << "] Press any key to exit...\n" << endl;
+        cin.get();
+        exit(1); // concurrency-mt-unsafe
+    }
+    
+    procKill(); // killing steam and game process
 
-	WinExec("C:\\Program FIles (x86)\\Steam\\steam.exe -applaunch 730", 0); // auto game start
+    WinExec(R"(C:\Program Files (x86)\Steam\steam.exe -applaunch 730)", 0); // auto game start
 
-	cout << termcolor::white << "[" << termcolor::yellow << "?" << termcolor::white << "] Waiting for game...\n" << endl;
+    cout << termcolor::white << "[" << termcolor::yellow << "?" << termcolor::white << "] Waiting for game...\n" << endl;
 
-	while ((csgo_handle = get_handle(), csgo_handle == INVALID_HANDLE_VALUE))
-		Sleep(28500);
+    while ((csgo_handle = getHandle()) == INVALID_HANDLE_VALUE) Sleep(28500);
 
-	char csgo1_mod_path[] = " ENTER DLL LOCATION HERE ";
-	void* csgo1_module = VirtualAllocEx(csgo_handle, nullptr, 0x1000, MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);
-	WriteProcessMemory(csgo_handle, csgo1_module, csgo1_mod_path, sizeof(csgo1_mod_path), nullptr);
-	HANDLE csgo1_legacy_thread = CreateRemoteThread(csgo_handle, nullptr, 0, (LPTHREAD_START_ROUTINE)LoadLibraryA, csgo1_module, 0, 0);
+    constexpr char csgo1_mod_path[] = " ENTER DLL LOCATION HERE ";
+    void* csgo1_module = VirtualAllocEx(csgo_handle, nullptr, 0x1000, MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);
+    WriteProcessMemory(csgo_handle, csgo1_module, csgo1_mod_path, sizeof(csgo1_mod_path), nullptr);
+    CreateRemoteThread(csgo_handle, nullptr, 0, reinterpret_cast<LPTHREAD_START_ROUTINE>(LoadLibraryA), csgo1_module, 0, nullptr); // diagnostic-cast-function-type-strictUn
 
-	cout << termcolor::white << "[" << termcolor::green << "!" << termcolor::white << "] Injection done!\n" << endl;
+    cout << termcolor::white << "[" << termcolor::green << "!" << termcolor::white << "] Injection done!\n" << endl;
 
-	Sleep(15000);
-	exit(1);
-	return 0;
+    Sleep(15000);
+    exit(1); // concurrency-mt-unsafe
 }
