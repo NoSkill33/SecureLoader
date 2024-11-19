@@ -1,4 +1,4 @@
-# Simple CS:GO Cheat Loader
+# Simple CS:GO DLL Loader
 > ### Simple DLL loader made in c++
 
 # Screenshot
